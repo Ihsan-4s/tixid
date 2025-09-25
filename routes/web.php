@@ -3,6 +3,7 @@
 use App\Http\Controllers\CinemaController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MovieController;
+use App\Http\Controllers\PromoController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -39,6 +40,7 @@ route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function()
         //put = proses update data
         route::put('/update/{id}', [CinemaController::class, 'update'])->name('update');
         Route::delete('/delete/{id}', [CinemaController::class, 'destroy'])->name('delete');
+        route::get('/export', [CinemaController::class,'cinemaExport'])->name('export');
     });
 
     //route admin dan staff
@@ -49,6 +51,7 @@ route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function()
         route::get('/edit{id}', [UserController::class, 'edit'])->name('edit');
         route::put('/update/{id}', [UserController::class, 'update'])->name('update');
         route::delete('/delete/{id}', [UserController::class, 'destroy'])->name('delete');
+        route::get('/export' , [UserController::class, 'exportExcel'])->name('export');
     });
 
     route::prefix('/movies')->name('movies.')->group(function(){
@@ -59,12 +62,30 @@ route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function()
         route::put('/update/{id}', [MovieController::class, 'update'])->name('update');
         route::delete('/delete/{id}', [MovieController::class , 'destroy'])->name('delete');
         route::patch('/activate/{id}', [MovieController::class, 'activate'])->name('activate');
+        route::get('/export', [MovieController::class, 'exportExcel'])->name('export');
         });
     });
+        route::get('/', [MovieController::class, 'home' ])->name('home');
+        route::get('/detail/{id}', [MovieController::class, 'detail'])->name('detail');
+        route::get('/movies/active', [MovieController::class, 'homeMovies'])->name('home.movies.active');
 
-route::get('/', [MovieController::class, 'home' ])->name('home');
-route::get('/detail/{id}', [MovieController::class, 'detail'])->name('detail');
-route::get('/movies/active', [MovieController::class, 'homeMovies'])->name('home.movies.active');
+    route::middleware('isStaff')->prefix('/staff')->name('staff.')->group(function(){
+        route::get('/dashboard', function(){
+            return view('staff.dashboard');
+        })->name('dashboard');
+
+        route::prefix('/promos')->name('promos.')->group(function(){
+            route::get('/', [PromoController::class,'index'])->name('index');
+            route::get('/create', [PromoController::class, 'create'])->name('create');
+            route::post('/store', [PromoController::class, 'store'])->name('store');
+            route::get('/edit/{id}', [PromoController::class, 'edit'])->name('edit');
+            route::put('/update/{id}', [PromoController::class, 'update'])->name('update');
+            route::delete('/delete/{id}', [PromoController::class, 'destroy'])->name('delete');
+            route::get('/export', [PromoController::class, 'exportPromo'])->name('export');
+
+
+        });
+    });
 
 route::post('/auths', [UserController::class, 'register'])->name('signup.register');
 Route::post('/auth', [UserController::class, 'loginAuth'])->name('login.auth');

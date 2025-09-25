@@ -3,12 +3,11 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-
 use App\Models\User;
-
 use Illuminate\Support\Facades\Hash;
-
 use Illuminate\Support\Facades\Auth;
+use App\Exports\UserExport;
+use Maatwebsite\Excel\Facades\Excel;
 
 class UserController extends Controller
 {
@@ -73,6 +72,9 @@ class UserController extends Controller
         if(Auth::attempt($data)){
             if(Auth::user()->role == 'admin'){
                 return redirect()->route('admin.dashboard')->with('success','berhasil login');
+            }
+            elseif(Auth::user()->role == 'staff'){
+                return redirect()->route('staff.dashboard')->with('success','berhasil login');
             }
             return redirect()->route('home')->with('success','Login berhasil');
         }else{
@@ -180,5 +182,11 @@ class UserController extends Controller
     {
         User::where('id',$id)->delete();
         return redirect()->route('admin.users.index')->with('success', 'Data Berhasil Dihapus');
+    }
+
+    public function exportExcel()
+    {
+        $fillname = "data-user.xlsx";
+        return Excel::download(new UserExport,$fillname);
     }
 }

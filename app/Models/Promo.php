@@ -12,5 +12,5 @@ class Promo extends Model
     use SoftDeletes;
 
     //mendaftarkan detail data (colom) agar data bisa diisi
-    protected $fillable = ['promo_code', 'discount', 'type', ' activated'];
+    protected $fillable = ['promo_code', 'discount', 'type', 'activated'];
 }
