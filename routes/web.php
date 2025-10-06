@@ -4,6 +4,7 @@ use App\Http\Controllers\CinemaController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MovieController;
 use App\Http\Controllers\PromoController;
+use App\Http\Controllers\ScheduleController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -73,6 +74,11 @@ route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function()
         route::get('/dashboard', function(){
             return view('staff.dashboard');
         })->name('dashboard');
+
+        route::prefix('/schedules')->name('schedules.')->group(function(){
+            route::get('/',[ScheduleController::class, 'index'])->name('index');
+            route::post('/',[ScheduleController::class, 'store'])->name('store');
+        });
 
         route::prefix('/promos')->name('promos.')->group(function(){
             route::get('/', [PromoController::class,'index'])->name('index');

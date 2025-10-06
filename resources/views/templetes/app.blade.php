@@ -63,7 +63,7 @@
                             <a class="nav-link" href="{{ route('staff.dashboard') }}">Dashboard</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link" href="">Jadwal</a>
+                            <a class="nav-link" href="{{ route('staff.schedules.index') }}">Jadwal</a>
                         </li>
                         <li class="nav-item">
                             <a class="nav-link" href="{{ route('staff.promos.index') }}">Promo</a>

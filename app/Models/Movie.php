@@ -12,4 +12,8 @@ class Movie extends Model
 
     //mendaftarkan detail data (colom) agar data bisa diisi
     protected $fillable = ['title', 'genre', 'duration','direction','description', 'age_rating','poster','activated'];
+
+    public function schedules(){
+        return $this->hasMany(Schedule::class);
+    }
 }

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Cinema;
+use App\Models\Movie;
 use App\Models\Schedule;
 use Illuminate\Http\Request;
 
@@ -12,7 +14,10 @@ class ScheduleController extends Controller
      */
     public function index()
     {
-        //
+        $schedules = Schedule::with(['cinema', 'movie'])->get();
+        $movies = Movie::all();
+        $cinemas = Cinema::all();
+        return view('staff.schedule.index', compact('schedules','movies','cinemas'));
     }
 
     /**
@@ -28,7 +33,33 @@ class ScheduleController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $request->validate([
+            'cinema_id'=> 'required',
+            'movie_id'=>'required',
+            'price' => 'required|numeric',
+            'hours.*'=> 'required|date_format:H:i'
+        ],[
+            'cinema_id.required' => 'bioskop harus dipilih',
+            'movie_id.required' => 'movie harus dipilih',
+            'price.required' => 'harus ada harga',
+            'price.numeric' => 'harus nomor',
+            'hours.*.required' => 'harus ada waktu',
+            'hours.*.date_format' => 'format harus sesuai'
+        ]);
+
+        $createData = Schedule::create([
+            'cinema_id'=> $request->cinema_id,
+            'movie_id'=> $request->movie_id,
+            'price'=>$request->price,
+            'hours'=>$request->hours
+        ]);
+
+        if($createData){
+            return redirect()->route('staff.schedules.index')->with('success', 'data berhasil ditambah');
+        }else{
+            return redirect()->route('staff.schedules.index')->with('error', 'Data Gagal Ditambahkan');
+        }
+
     }
 
     /**

@@ -12,4 +12,21 @@ class Schedule extends Model
 
     //mendaftarkan detail data (colom) agar data bisa diisi
     protected $fillable = ['cinema_id', 'movie_id','hours','price'];
+    //json = {}/"[]"
+    //supaya format array normal
+    protected function casts():array
+    {
+        return[
+            'hours' => 'array'
+        ];
+    }
+
+    public function cinema(){
+        //karna schedule ada di posisi dua pakai belongsTo
+        return $this->belongsTo(Cinema::class);
+    }
+
+    public function movie(){
+        return $this->belongsTo(Movie::class);
+    }
 }
