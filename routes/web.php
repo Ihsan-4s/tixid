@@ -7,13 +7,9 @@ use App\Http\Controllers\PromoController;
 use App\Http\Controllers\ScheduleController;
 use Illuminate\Support\Facades\Route;
 
-Route::get('/', function () {
-    return view('home');
-})->name('home');
-
-route::get('/schedule', function (){
-    return view('schedule.detail-film');
-})->name('schedules.detail');
+route::get('/', [MovieController::class, 'home' ])->name('home');
+route::get('/movies/active', [MovieController::class, 'homeMovies'])->name('home.movies.active');
+route::get('/schedule/{movie_id}',[MovieController::class,'movieSchedule'])->name('schedules.detail');
 
 route::get('/auth', function (){
     return view('auth.login');
@@ -66,9 +62,8 @@ route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function()
         route::get('/export', [MovieController::class, 'exportExcel'])->name('export');
         });
     });
-        route::get('/', [MovieController::class, 'home' ])->name('home');
         route::get('/detail/{id}', [MovieController::class, 'detail'])->name('detail');
-        route::get('/movies/active', [MovieController::class, 'homeMovies'])->name('home.movies.active');
+
 
     route::middleware('isStaff')->prefix('/staff')->name('staff.')->group(function(){
         route::get('/dashboard', function(){

@@ -21,16 +21,17 @@
                 @foreach ($schedules as $index => $schedule)
             <tr>
                 <td>{{ $index + 1 }}</td>
-                <td>{{ $schedule->cinema->name}}</td>
-                <td>{{ $schedule->movie->title}}</td>
-                <td>Rp {{ number_format($schedule->price, 0, ',', '.') }}</td>
+                <td>{{ $schedule['cinema']['name']}}</td>
+                <td>{{ $schedule['movie'] ['title']}}</td>
                 <td>
-                    @foreach ($schedule->hours as $jam)
-                        <span class="badge bg-primary">{{ $jam }}</span>
+                    <ul>
+                    @foreach ($schedule['hours'] as $jam)
+                        <li>{{ $jam }}</li>
                     @endforeach
+                    </ul>
                 </td>
                 <td>
-                    <button class="btn btn-sm btn-warning">Edit</button>
+                    <a href="" class="btn btn-sm btn-primary">Edit</a>
                     <button class="btn btn-sm btn-danger">Hapus</button>
                 </td>
             </tr>

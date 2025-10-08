@@ -104,7 +104,7 @@
             <div class="card" style="width: 13rem;">
                 <img src="{{ asset('storage/' . $movie['poster']) }}" alt="{{ $movie->title }}" style="height: 300px; object-fit:cover;" class="card-img-top">
                 <div class="card-body" style="padding: 0;" !important>
-                    <p class="card-text text-center bg-primary py-2"><a href="{{ route('detail' , $movie->id) }}" class="text-warning"><b>beli tiket</b></a></p>
+                    <p class="card-text text-center bg-primary py-2"><a href="{{ route('schedules.detail' , $movie->id) }}" class="text-warning"><b>beli tiket</b></a></p>
                 </div>
             </div>
             @endforeach

@@ -47,11 +47,22 @@ class ScheduleController extends Controller
             'hours.*.date_format' => 'format harus sesuai'
         ]);
 
-        $createData = Schedule::create([
+        $hours = Schedule::where('cinema_id',$request->cinema_id)->where('movie_id', $request->movie_id)->value('hours');
+        // jika sudah ada datadengan bioskop dan film yang sama make ambil dara jam tsb
+        $hoursBefore = $hours ?? [];
+        //gabungkan dengan array jam sebelum ny dengan array jam yang baru ditambah
+        $mergeHours= array_merge($hoursBefore, $request->hours);
+        //jika ada jam yang duplikat ambil salah satu
+        $newHours = array_unique($mergeHours);
+
+        //updateorCreate mengubah jika sudah ada mendambah bika belum ada
+        $createData = Schedule::updateOrCreate([
             'cinema_id'=> $request->cinema_id,
             'movie_id'=> $request->movie_id,
+        ],[
+            //data yang akan diupdate
             'price'=>$request->price,
-            'hours'=>$request->hours
+            'hours'=>$newHours      
         ]);
 
         if($createData){

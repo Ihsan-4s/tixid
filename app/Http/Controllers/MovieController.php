@@ -34,6 +34,11 @@ class MovieController extends Controller
         return view('movies', compact('movies'));
     }
 
+    public function movieSchedule($movie_id){
+        $movie = Movie::where('id', $movie_id)->with(['schedules','schedules.cinema'])->first();
+        return view('schedule.detail-film',compact('movie'));
+    }
+
     public function activate($id){
         $movie = movie::find($id);
         $movie->activated = !$movie->activated;
@@ -200,4 +205,6 @@ class MovieController extends Controller
         $fillname = 'data-film.xlsx';
         return Excel::download(new MovieExport, $fillname);
     }
+
+
 }
