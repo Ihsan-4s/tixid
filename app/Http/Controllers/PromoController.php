@@ -6,6 +6,7 @@ use App\Exports\PromoExport;
 use App\Models\Promo;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Yajra\DataTables\Facades\DataTables;
 
 class PromoController extends Controller
 {
@@ -129,5 +130,47 @@ class PromoController extends Controller
     {
         $fillname = 'data-promo.xlsx';
         return Excel::download(new PromoExport, $fillname);
+    }
+
+    public function trash(){
+        $promoTrash = Promo::onlyTrashed()->get();
+        return view('staff.promo.trash', compact('promoTrash'));
+    }
+
+    public function restore($id){
+        $promo = Promo::onlyTrashed()->find($id);
+        $promo-> restore();
+        return redirect()->route('staff.promos.index')->with('success', 'Data Berhasil Direstore');
+    }
+
+    public function deletePermanent($id){
+        $promo=Promo::onlyTrashed()->find($id);
+        $promo->forceDelete();
+        return redirect()->back()->with('success', 'Data Berhasil Dihapus Permanen');
+    }
+
+    public function dataTable(){
+        $promos = Promo::query()->get();
+        return DataTables::of($promos)
+        ->addIndexColumn()
+        ->addColumn('btnAction', function($promos){
+            $btnEdit = '<a href="'. route('staff.promos.edit' , $promos['id']) .'" class="btn btn-primary">Edit</a>';
+            $btnDelete ='<form method="POST" action="'. route('staff.promos.delete' , $promos['id']) .'" >
+                            '.csrf_field().'
+                            '.method_field('DELETE').'
+                            <button class="btn btn-danger ms-2">Hapus</button>
+                        </form>';
+            return '<div class="d-flex justify-content-center">'.$btnEdit . $btnDelete.'</div>';
+        })
+        ->addColumn('discount_display', function($promos){
+            if($promos->type === 'percent'){
+                return $promos->discount . '%';
+            } elseif($promos->type === 'rupiah'){
+                return 'Rp ' . number_format($promos->discount, 0, ',', '.');
+            }
+            return $promos->discount;
+        })
+        ->rawColumns(['btnAction', 'discount_display'])
+        ->make(true);
     }
 }

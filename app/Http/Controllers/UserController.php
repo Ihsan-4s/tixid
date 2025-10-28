@@ -8,6 +8,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Exports\UserExport;
 use Maatwebsite\Excel\Facades\Excel;
+use Yajra\DataTables\Facades\DataTables;
+
 
 class UserController extends Controller
 {
@@ -88,9 +90,10 @@ class UserController extends Controller
 
     public function index()
     {
-        $users = User::all();
+        $users = User::whereIn('role', ['admin', 'staff'])->get();
         return view('admin.staff.index', compact('users'));
     }
+
 
     /**
      * Show the form for creating a new resource.
@@ -188,5 +191,41 @@ class UserController extends Controller
     {
         $fillname = "data-user.xlsx";
         return Excel::download(new UserExport,$fillname);
+    }
+
+    public function trash()
+    {
+        $users = User::onlyTrashed()->get();
+        return view('admin.staff.trash', compact('users'));
+    }
+
+    public function restore($id)
+    {
+        User::onlyTrashed()->where('id',$id)->restore();
+        return redirect()->route('admin.users.index')->with('success', 'Data Berhasil Dikembalikan');
+    }
+
+    public function deletePermanent($id)
+    {
+        User::onlyTrashed()->where('id',$id)->forceDelete();
+        return redirect()->route('admin.users.trash')->with('success', 'Data Berhasil Dihapus Permanen');
+    }
+
+    public function dataTable(){
+        $users = User::query()->whereIn('role', ['admin', 'staff']);
+        return DataTables::of($users)
+        ->addIndexColumn()
+        
+        ->addColumn('btnAction', function($users){
+            $btnEdit = '<a href="'. route('admin.users.edit', $users->id) .'" class="btn btn-info">Edit</a>';
+            $btnDelete = '<form action="'. route('admin.users.delete', $users->id) .'" method="POST">
+                                '.csrf_field().'
+                                '.method_field('DELETE').'
+                                <button type="submit" class="btn btn-danger">Hapus</button>
+                            </form>';
+            return '<div class="d-flex justify-content-center align-items-center gap-2">' . $btnEdit . ' ' . $btnDelete . '</div>';
+        })
+        ->rawColumns(['name','email','role','btnAction'])
+        ->make(true);
     }
 }

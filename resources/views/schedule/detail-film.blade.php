@@ -57,6 +57,7 @@
                 </div>
             </div>
             <div class="d-flex w-100 bg-light mt-3">
+
                 <div class="dropdown">
                     <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
@@ -68,24 +69,51 @@
                         <li><a class="dropdown-item" href="#">Jakarta Barat</a></li>
                     </ul>
                 </div>
+                @php
+                    if (request()->get('sortirHarga') == 'ASC') {
+                        $sortirHarga = 'DESC';
+                    }elseif (request()->get('sortirHarga') == 'DESC') {
+                        $sortirHarga = 'ASC';
+                    }else{
+                        $sortirHarga = 'ASC';
+                    }
+
+
+                    if (request()->get('sortirAlfabet') == 'ASC') {
+                        $sortirAlfabet = 'DESC';
+                    }elseif (request()->get('sortirAlfabet') == 'DESC') {
+                        $sortirAlfabet = 'ASC';
+                    }else{
+                        $sortirAlfabet = 'ASC';
+                    }
+
+                    
+                @endphp
                 <div class="dropdown">
                     <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
                         aria-expanded="false">
                         sortir
                     </button>
                     <ul class="dropdown-menu">
-                        <li><a class="dropdown-item" href="#">Alfabet</a></li>
-                        <li><a class="dropdown-item" href="#">Harga</a></li>
-
+                        {{-- query params (?) untuk search sort and limit bisa di form atau href --}}
+                        <li><a class="dropdown-item" href="?sortirAlfabet={{ $sortirAlfabet }}">Alfabet</a></li>
+                        <li><a class="dropdown-item" href="?sortirHarga={{ $sortirHarga }}">Harga</a></li>
                     </ul>
                 </div>
             </div>
             <div class="mb-5">
                 @foreach ($movie['schedules'] as $schedule)
                     <div class="w-100 my-3">
-                        <i class="fa-solid fa-building"></i><b class="ms-2">{{ $schedule['cinema']['name'] }}</b>
-                        <br>
-                        <small class="ms-3">{{ $schedule['cinema']['location'] }}</small>
+                        <div class="d-flex justify-content-between">
+                            <div>
+                                <i class="fa-solid fa-building"></i><b class="ms-2">{{ $schedule['cinema']['name'] }}</b>
+                                <br>
+                                <small class="ms-3">{{ $schedule['cinema']['location'] }}</small>
+                            </div>
+                            <div>
+                                <b>Rp. {{ number_format($schedule['price'], 0, ',', '.') }}</b>
+                            </div>
+                        </div>
                         <div class="d-flex gap-3 ps-3 my-2">
                             @foreach ($schedule['hours'] as $hours)
                                 <div class="btn btn-outline-secondary">{{ $hours }}</div>

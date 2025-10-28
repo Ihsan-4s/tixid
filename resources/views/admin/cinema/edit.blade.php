@@ -1,82 +1,27 @@
 @extends('templetes.app')
 
 @section('content')
-    <div class="w-75 d-block mx-auto my-5">
-        {{-- mengizinkan formulir mengrim file --}}
-        <form method="POST" action="{{ route('admin.movies.store') }}" enctype="multipart/form-data">
+    <div class="w-75 d-block mx-auto my-5 p-4">
+        <h5 class="text-center my-3">Edit Data Bioskop</h5>
+        <form method="POST" action="{{ route('admin.cinemas.update', $cinema['id']) }}">
             @csrf
-            <div class="row mb-3">
-                <div class="col-6">
-                    <label for="title" class="form-label">judul film</label>
-                    <input type="text" name="title" id="title" class="form-control @error('title') is-invalid @enderror" >
-                    @error('title')
-                        <small class="text-danger">
-                            {{ $message }}
-                        </small>
-                    @enderror
-                </div>
-                <div class="col-6">
-                    <label for="duration" class="form-label" >Durasi Film </label>
-                    <input type="time" name="duration" id="duration" class="form-control @error('duration') is-invalid @enderror" >
-                    @error('duration')
-                        <small class="text-danger">
-                            {{ $message }}
-                        </small>
-                    @enderror
-                </div>
+            {{-- mengubah method='POST' jadi put seperti routenya --}}
+            @method('PUT')
+            <div class="mb-3">
+                <label for="name" class="form-label">Nama Bioskop :</label>
+                <input type="text" class="form-control @error('name') is-invalid @enderror" id="name" name="name" value="{{ $cinema['name'] }}">
+                @error('name')
+                    <small class="text-danger">{{$message}}</small>
+                @enderror
             </div>
-            <div class="row mb-3">
-                <div class="col-6">
-                    <label for="genre" class="form-label">genre</label>
-                    <input type="text" name="genre" id="genre" placeholder="romantis, fantasi" class="form-control @error('genre') is-invalid @enderror" >
-                    @error('genre')
-                        <small class="text-danger">
-                            {{ $message }}
-                        </small>
-                    @enderror
-                </div>
-                <div class="col-6">
-                    <label for="direction" class="form-label">director</label>
-                    <input type="text" name="direction" id="direction" class="form-control @error('direction') is-invalid @enderror" >
-                    @error('direction')
-                        <small class="text-danger">
-                            {{ $message }}
-                        </small>
-                    @enderror
-                </div>
+            <div class="mb-3">
+                <label for="location" class="form-label">Lokasi :</label>
+                <textarea id="location" id="" cols="30" rows="5" class="form-control @error('location') is-invalid @enderror" name="location">{{$cinema['location']}}</textarea>
+                @error('location')
+                    <small class="text-danger">{{$message}}</small>
+                @enderror
             </div>
-            <div class="row mb-3">
-                <div class="col-6">
-                    <label for="age rating" class="form-label">age rating</label>
-                    <input type="number" name="age_rating" id="age_rating" placeholder="R, SU, Dll" class="form-control @error('age_rating') is-invalid @enderror" >
-                    @error('age_rating')
-                        <small class="text-danger">
-                            {{ $message }}
-                        </small>
-                    @enderror
-                </div>
-                <div class="col-6">
-                    <label for="poster" class="form-label">poster</label>
-                    <input type="file" name="poster" id="poster" class="form-control @error('poster') is-invalid @enderror" >
-                    @error('poster')
-                        <small class="text-danger">
-                            {{ $message }}
-                        </small>
-                    @enderror
-                </div>
-            </div>
-            <div class="row mb-3">
-                <div class="col-32">
-                    <label for="description">sinopsis</label>
-                    <textarea name="description" id="description" rows="5" class="form-control @error('description') is-invalid @enderror"></textarea>
-                    @error('description')
-                        <small class="text-danger">
-                            {{ $message }}
-                        </small>
-                    @enderror
-                </div>
-            </div>
-                <button  type="submit" class="btn btn-primary">Kirim</button>
+            <button class="btn btn-primary" type="submit">Edit Data</button>
         </form>
     </div>
 @endsection

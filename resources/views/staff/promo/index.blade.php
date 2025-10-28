@@ -13,39 +13,38 @@
 
         <div class="d-flex justify-content-end">
             <a href="{{ route('staff.promos.export') }}" class="btn btn-secondary me-2">export cuyy</a>
-            <a href="{{ route('staff.promos.create') }}" class="btn btn-success">Tambah Promo</a>
+            <a href="{{ route('staff.promos.create') }}" class="btn btn-success me-2">Tambah Promo</a>
+            <a href="{{ route('staff.promos.trash') }}" class="btn btn-danger">Trash</a>
         </div>
         <h5>promo</h5>
 
-        <table class="table table-bordered">
+        <table class="table table-bordered" id="promoTable">
+            <thead>
             <tr>
                 <th>#</th>
                 <th>Kode</th>
                 <th>Total</th>
                 <th>Aksi</th>
             </tr>
-            @php $no = 1; @endphp
-            @foreach ($promos as $promo)
-                <tr>
-                    <th>{{ $no++ }}</th>
-                    <th>{{ $promo['promo_code'] }}</th>
-                    <td>
-                        @if ($promo->type == 'percent')
-                            {{ $promo->discount }} %
-                        @elseif ($promo->type == 'rupiah')
-                            Rp {{ number_format($promo->discount, 0, ',', '.') }}
-                        @endif
-                    </td>
-                    <th class="d-flex">
-                        <a href="{{ route('staff.promos.edit' , $promo['id']) }}" class="btn btn-primary">Edit</a>
-                        <form method="POST" action="{{ route('staff.promos.delete' , $promo['id']) }}" >
-                            @csrf
-                            @method('DELETE')
-                            <button class="btn btn-danger ms-2">Hapus</button>
-                        </form>
-                    </th>
-                </tr>
-            @endforeach
+            </thead>
+
         </table>
     </div>
 @endsection
+@push('script')
+<script>
+    $(function(){
+        $('#promoTable').DataTable({
+            processing: true,
+            serverSide: true,
+            ajax: '{{ route('staff.promos.dataTable') }}',
+            columns: [
+                {data : 'DT_RowIndex', name:'DT_RowIndex', orderable:false, searchable:false},
+                {data : 'promo_code', name:'promo_code', orderable:true, searchable:true},
+                {data : 'discount_display', name:'discount_display', orderable:true, searchable:true},
+                {data : 'btnAction', name:'btnAction', orderable:false, searchable:false},
+            ]
+        })
+    })
+</script>
+@endpush

@@ -7,6 +7,9 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Storage;
 use Maatwebsite\Excel\Facades\Excel;
 use App\Exports\MovieExport;
+use App\Models\Schedule;
+use Yajra\DataTables\Facades\DataTables;
+
 
 class MovieController extends Controller
 {
@@ -29,13 +32,41 @@ class MovieController extends Controller
         return view('schedule.detail-film', compact('movie'));
     }
 
-    public function homeMovies(){
-        $movies=Movie::where('activated',1)->orderBy('created_at','desc')->get();
+    public function homeMovies(Request $request){
+        //pengambilan data dari input search
+        $nameMovie = $request->search_movie;
+        //jika namaMovie di isi
+        if($nameMovie !=""){
+            // like mencari data yang mirip atau mengandung teks
+            $movies = Movie::where('title', 'LIKE', '%' . $nameMovie . '%')->where('activated', 1)->orderBy('created_at', 'desc')->get();
+        }else{
+            $movies=Movie::where('activated',1)->orderBy('created_at','desc')->get();
+        }
         return view('movies', compact('movies'));
+
     }
 
-    public function movieSchedule($movie_id){
-        $movie = Movie::where('id', $movie_id)->with(['schedules','schedules.cinema'])->first();
+    public function movieSchedule($movie_id, Request $request){
+        $sortirHarga = $request->sortirHarga;
+        if($sortirHarga == 'ASC'){
+            $movie = Movie::where('id', $movie_id)->with(['schedules'=>function($q) use($sortirHarga){
+                $q->orderBy('price', $sortirHarga);
+
+            },'schedules.cinema'])->first();
+        }else{
+            $movie = Movie::where('id', $movie_id)->with(['schedules','schedules.cinema'])->first();
+        }
+
+        $sortirAlfabet = $request->sortirAlfabet;
+        if($sortirAlfabet == 'ASC'){
+            $movie->schedules = $movie->schedules->sortBy(function($schedule){
+                return $schedule->cinema->name;
+            })->values();
+        }elseif($sortirAlfabet == 'DESC'){
+            $movie->schedules = $movie->schedules->sortByDesc(function($schedule){
+                return $schedule->cinema->name;
+            })->values();
+        }
         return view('schedule.detail-film',compact('movie'));
     }
 
@@ -190,6 +221,11 @@ class MovieController extends Controller
      */
     public function destroy($id)
     {
+        $movie = Schedule::where('movie_id',  $id)->count();
+        if ($movie){
+            return redirect()->route('admin.movies.index')->with('error', 'gabisa dong cuy');
+        }
+
         $movie = Movie::find( $id);
 
         if($movie->poster && storage::disk('public')->exists($movie->poster )){
@@ -204,6 +240,65 @@ class MovieController extends Controller
         //nama file yang akan terunduh
         $fillname = 'data-film.xlsx';
         return Excel::download(new MovieExport, $fillname);
+    }
+
+    public function trash(){
+        $movies = Movie::onlyTrashed()->get();
+        return view('admin.movie.trash', compact('movies'));
+    }
+
+    public function restore($id){
+        $movie = Movie::withTrashed()->find($id);
+        $movie-> restore();
+        return redirect()->route('admin.movies.index')->with('success', 'Data Berhasil Direstore');
+    }
+
+    public function deletePermanent($id){
+        $movie=Movie::onlyTrashed()->find($id);
+        $movie->forceDelete();
+        return redirect()->back();
+    }
+
+    public function dataTable()
+    {
+        $movies = Movie::query();
+        return DataTables::of($movies)
+            ->addIndexColumn()
+            ->addColumn('imgPoster', function($movie){
+                $imgUrl = asset('storage/' . $movie['poster']);
+                return '<img src="'.$imgUrl.'" width="120px"/>';
+            })
+            ->addColumn('activeBadge', function($movie){
+                if($movie->activated == 1){
+                    return '<span class="badge badge-success">Active</span>';
+                }else{
+                    return '<span class="badge badge-danger">Inactive</span>';
+                }
+            })
+            ->addColumn('btnActions', function($movie){
+                $btnDetail = '<button class="btn btn-secondary me-2" onclick=\'showModal('. json_encode($movie) .')\'>Detail</button>';
+                $btnEdit = '<a href="'. route('admin.movies.edit', $movie['id']).'" class="btn btn-primary me-2">Edit</a>';
+
+                $btnDelete = '<form action="'. route('admin.movies.delete', $movie['id']) .'" method="POST">'.
+                            csrf_field().
+                            method_field('DELETE').'
+                        <button class="btn btn-danger">Hapus</button>
+                        </form>';
+
+                        if($movie['activated'] == 1){
+                            $btnNonAktif = '<form action="'. route('admin.movies.activate', $movie['id']) .'" method="POST">'.
+                            csrf_field().
+                            method_field('PATCH').'
+                        <button class="btn btn-warning">Non Aktif</button>
+                        </form>';
+                        }else {
+                            $btnNonAktif = '';
+                        }
+
+                        return '<div class="d-flex gap-2">'. $btnDetail . $btnEdit . $btnDelete . $btnNonAktif .'</div>';
+            })
+            ->rawColumns(['imgPoster','activeBadge','btnActions'])
+            ->make(true);
     }
 
 

@@ -4,8 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Exports\CinemaExport;
 use App\Models\Cinema;
+use App\Models\Schedule;
 use Illuminate\Http\Request;
 use Maatwebsite\Excel\Facades\Excel;
+use Yajra\DataTables\Facades\DataTables;
 
 
 class CinemaController extends Controller
@@ -102,6 +104,11 @@ class CinemaController extends Controller
      */
     public function destroy($id)
     {
+        $schedules = Schedule::where('cinema_id',  $id)->count();
+        if ($schedules){
+            return redirect()->route('admin.cinemas.index')->with('error', 'gabisa dong cuy');
+        }
+
         Cinema::where('id', $id)->delete();
         return redirect()->route('admin.cinemas.index')->with('success', 'Data Berhasil Dihapus');
     }
@@ -110,5 +117,40 @@ class CinemaController extends Controller
     {
         $fillname = 'dataCinema.xlsx';
         return Excel::download(new CinemaExport, $fillname);
+    }
+
+    public function trash(){
+        $cinemas = Cinema::onlyTrashed()->get();
+        return view('admin.cinema.trash', compact('cinemas'));
+    }
+
+    public function restore($id){
+        $cinema = Cinema::onlyTrashed()->find($id);
+        $cinema-> restore();
+        return redirect()->route('admin.cinemas.index')->with('success', 'bisa cu');
+    }
+
+
+    public function deletePermanent($id){
+        $cinema = Cinema::onlyTrashed()->find($id);
+        $cinema -> forceDelete();
+        return redirect()->back()->with('success', 'bisa cu');
+    }
+
+    public function dataTable(){
+        $cinemas = Cinema::query();
+        return DataTables::of($cinemas)
+            ->addIndexColumn()
+            ->addColumn('btnAction', function($cinemas){
+                $btnEdit = '<a href="'. route('admin.cinemas.edit', $cinemas->id) .'" class="btn btn-secondary">Edit</a>';
+                $btnDelete = '<form action="'. route('admin.cinemas.delete', $cinemas->id) .'" method="POST">
+                            '.csrf_field().'
+                            '.method_field('DELETE').'
+                            <button class="btn btn-danger" type="submit">Hapus</button>
+                        </form>';
+                        return '<div class="d-flex justify-content-center align-items-center gap-2">' . $btnEdit . '' . $btnDelete . '</div>';
+            })
+            ->rawColumns(['name','location','btnAction'])
+            ->make(true);
     }
 }
