@@ -87,7 +87,7 @@
                         $sortirAlfabet = 'ASC';
                     }
 
-                    
+
                 @endphp
                 <div class="dropdown">
                     <button class="btn btn-light dropdown-toggle" type="button" data-bs-toggle="dropdown"
@@ -108,23 +108,61 @@
                             <div>
                                 <i class="fa-solid fa-building"></i><b class="ms-2">{{ $schedule['cinema']['name'] }}</b>
                                 <br>
-                                <small class="ms-3">{{ $schedule['cinema']['location'] }}</small>
+                                {{-- <small class="ms-3">{{ $schedule['cinema']['location'] }}</small> --}}
                             </div>
                             <div>
                                 <b>Rp. {{ number_format($schedule['price'], 0, ',', '.') }}</b>
                             </div>
                         </div>
+                        <small class="ms-3">{{ $schedule['cinema']['location'] }}</small>
                         <div class="d-flex gap-3 ps-3 my-2">
-                            @foreach ($schedule['hours'] as $hours)
-                                <div class="btn btn-outline-secondary">{{ $hours }}</div>
+                            @foreach ($schedule['hours'] as $index => $hours)
+                            {{-- this digunakan untuk ngirim element html yang di click ke js nya --}}
+                                <div class="btn btn-outline-secondary" onclick="selectedHour('{{ $schedule->id }}', '{{ $index }}',this)">{{ $hours }}</div>
                             @endforeach
                         </div>
                     </div>
                 @endforeach
                 <hr>
-                <div class="w-100 p-2 bg-light text-center fixed-buttom">
-                    <a href=""><i class="fa solid fa-ticket"></i> BELI TIKET</a>
+                <div class="w-100 p-2 text-center fixed-bottom" id="wrapper-btn">
+                    <a href="" id="btn-ticket"><i class="fa solid fa-ticket"></i> BELI TIKET</a>
                 </div>
             </div>
         </div>
     @endsection
+    @push('script')
+        <script>
+            let selectedHours = null;
+            let selectedSchedule = null;
+            let lastClickedElement = null;
+            function selectedHour(scheduleId, hourId, el){
+                //memindahkan data dari parameter ke variable luar
+                selectedHours = hourId;
+                selectedSchedule = scheduleId;
+
+                if(lastClickedElement){
+                    lastClickedElement.style.background='';
+                    lastClickedElement.style.color='';
+                    lastClickedElement.style.borderColor='';
+                }
+                el.style.background = '#112646';
+                el.style.color = 'white';
+                el.style.borderColor = '#112646';
+                //update last clicked element
+                lastClickedElement = el;
+
+                let btnWrapper = document.querySelector('#wrapper-btn');
+                let btnTicket = document.querySelector('#btn-ticket');
+                    btnWrapper.style.background = '#112646';
+                    btnTicket.style.color = 'white';
+                    btnWrapper.style.borderColor = '#112646';
+
+                //set url route
+                let url = "{{ route('schedules.show_seats', ['scheduleId' => ':schedule', 'hourId' => ':hour']) }}"
+                .replace(':schedule', scheduleId)
+                .replace(':hour', hourId);
+                //replace untuk mengganti schedule dan hour jadi data yang sebenarnya
+                btnTicket.href = url;
+            }
+        </script>
+    @endpush

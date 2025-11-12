@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\CinemaController;
+use App\Http\Controllers\TicketController;
 use App\Http\Controllers\UserController;
 use App\Http\Controllers\MovieController;
 use App\Http\Controllers\PromoController;
@@ -11,6 +12,16 @@ use Illuminate\Support\Facades\Route;
 route::get('/', [MovieController::class, 'home' ])->name('home');
 route::get('/movies/active', [MovieController::class, 'homeMovies'])->name('home.movies.active');
 route::get('/schedule/{movie_id}',[MovieController::class,'movieSchedule'])->name('schedules.detail');
+route::get('/cinemas/list', [CinemaController::class, 'cinemaList'])->name('cinemas.list');
+route::get('/cinemas/{cinema_id}/schedules', [CinemaController::class, 'cinemaSchedules'])->name('cinemas.schedules');
+
+route::middleware('isUser')->group(function(){
+    route::get('/schedule/{scheduleId}/hours/{hourId}/ticket', [TicketController::class, 'showSeats'])->name('schedules.show_seats');
+    route::prefix('/tickets')->name('tickets.')->group(function(){
+        route::post('/', [TicketController::class, 'store'])->name('store');
+        route::get('/{ticketId}/order', [TicketController::class, 'ticketOrderPage'])->name('order');
+    });
+});
 
 route::get('/auth', function (){
     return view('auth.login');

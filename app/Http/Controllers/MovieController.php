@@ -261,7 +261,7 @@ class MovieController extends Controller
 
     public function dataTable()
     {
-        $movies = Movie::query();
+        $movies = Movie::query()->get();
         return DataTables::of($movies)
             ->addIndexColumn()
             ->addColumn('imgPoster', function($movie){

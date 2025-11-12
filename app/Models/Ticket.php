@@ -11,5 +11,32 @@ class Ticket extends Model
     use SoftDeletes;
 
     //mendaftarkan detail data (colom) agar data bisa diisi
-    protected $fillable = ['user_id', 'schedule_id','promo_id','date','rows_of_seats','quantity','total_price','activated'];
+    protected $fillable = ['user_id', 'schedule_id','promo_id','date','rows_of_seats','quantity','total_price','activated', 'service_fee', 'hour'];
+
+    protected function casts()
+    {
+        return [
+            'rows_of_seats' => 'array',
+        ];
+    }
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
+
+    public function schedule()
+    {
+        return $this->belongsTo(Schedule::class);
+    }
+
+    public function promo()
+    {
+        return $this->belongsTo(Promo::class);
+    }
+
+    public function ticket_payment()
+    {
+        return $this->hasOne(TicketPayment::class);
+    }
 }

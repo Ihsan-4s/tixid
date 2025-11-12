@@ -212,10 +212,18 @@ class UserController extends Controller
     }
 
     public function dataTable(){
-        $users = User::query()->whereIn('role', ['admin', 'staff']);
+        $users = User::query()->whereIn('role', ['admin', 'staff'])->get();
         return DataTables::of($users)
         ->addIndexColumn()
-        
+        ->addColumn('role', function($users){
+            if($users->role == 'admin'){
+                $role = '<span class="badge bg-primary">Admin</span>';
+            }elseif($users->role == 'staff'){
+                $role = '<span class="badge bg-warning">Staff</span>';
+            }
+            return $role;
+        })
+
         ->addColumn('btnAction', function($users){
             $btnEdit = '<a href="'. route('admin.users.edit', $users->id) .'" class="btn btn-info">Edit</a>';
             $btnDelete = '<form action="'. route('admin.users.delete', $users->id) .'" method="POST">
@@ -225,7 +233,7 @@ class UserController extends Controller
                             </form>';
             return '<div class="d-flex justify-content-center align-items-center gap-2">' . $btnEdit . ' ' . $btnDelete . '</div>';
         })
-        ->rawColumns(['name','email','role','btnAction'])
+        ->rawColumns(['role','btnAction'])
         ->make(true);
     }
 }

@@ -13,4 +13,9 @@ class Promo extends Model
 
     //mendaftarkan detail data (colom) agar data bisa diisi
     protected $fillable = ['promo_code', 'discount', 'type', 'activated'];
+
+    public function tickets()
+    {
+        return $this->hasMany(Ticket::class);
+    }
 }
