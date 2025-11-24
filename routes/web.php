@@ -20,6 +20,12 @@ route::middleware('isUser')->group(function(){
     route::prefix('/tickets')->name('tickets.')->group(function(){
         route::post('/', [TicketController::class, 'store'])->name('store');
         route::get('/{ticketId}/order', [TicketController::class, 'ticketOrderPage'])->name('order');
+        route::post('/barcode', [TicketController::class, 'createBarcode'])->name('barcode');
+        route::get('/{ticketId}/payment', [TicketController::class, 'ticketPaymentPage'])->name('payment.page');
+        route::patch('{ticketId}/payment/update', [TicketController::class, 'updateStatusTicket'])->name('update.status');
+        route::get('{ticketId}/show', [TicketController::class, 'show'])->name('show');
+        route::get('{ticketId}/export/pdf', [TicketController::class, 'exportPdf'])->name('export.pdf');
+        route::get('/list', [TicketController::class,'index'])->name('index');
     });
 });
 

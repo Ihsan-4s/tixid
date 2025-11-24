@@ -35,9 +35,21 @@
                         @if ($col == 7)
                             <div style="width: 50px"></div>
                         @endif
-                        <div style="width: 45px; height:45px; text-align:center; font-weight:bold; color:white; padding-top:10px; cursor:pointer;background:#112646; margin:5px; border-radius:8px" onclick="selectSeat('{{ $schedule->price }}','{{ $row }}','{{ $col }}', this)">
+
+                        @php
+                            $seat = $row . "-" . $col
+                        @endphp
+                        @if (in_array($seat, $soldSeatsFormat))
+                        <div style="width: 45px; height:45px; text-align:center; font-weight:bold; color:black; padding-top:10px; background:#eaeaea; margin:5px; border-radius:8px">
                             {{ $row }}-{{ $col }}
                         </div>
+                        @else
+                        <div style="width: 45px; height:45px; text-align:center; font-weight:bold; color:white; padding-top:10px;cursor:pointer; background:#112646; margin:5px; border-radius:8px" onclick="selectSeat('{{ $schedule->price }}','{{ $row }}','{{ $col }}', this)">
+                            {{ $row }}-{{ $col }}
+                        </div>
+                        @endif
+
+
                     @endforeach
                 </div>
             @endforeach
@@ -77,7 +89,7 @@
             let indexSeat = seats.indexOf(seat);
             // jika ada item maka index array bernilai 0 kalo gaada -1
             if (indexSeat == -1) {
-                // kalau kursi tsb belum ada di arrau maka tambahkan dan warna biru
+                // kalau kursi tsb belum ada di array maka tambahkan dan warna biru
                 seats.push(seat); //push tambahin item ke array
                 element.style.background = 'blue';
             } else {
@@ -140,6 +152,5 @@
                 }
             });
         }
-
     </script>
 @endpush
