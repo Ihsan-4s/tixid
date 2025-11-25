@@ -42,9 +42,11 @@ route::get('/auths', function (){
 route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function(){
     //prefix gunanya untuk ditulis 1 kali bisa dipakai berkali kali
     //admin dashboard disimpan di group middleware agar dapat menggunakan middleware tsb
+    route::get('/tickets/chart', [TicketController::class, 'dataChart'])->name('tickets.chart');
     route::get('/dashboard', function(){
         return view('admin.dashboard');
     })->name('dashboard');
+
 
     route::prefix('/cinemas')->name('cinemas.')->group(function(){
         route::get('/datatable', [CinemaController::class, 'dataTable'])->name('dataTable');
@@ -78,6 +80,7 @@ route::middleware('isAdmin')->prefix('/admin')->name('admin.')->group(function()
     });
 
     route::prefix('/movies')->name('movies.')->group(function(){
+        route::get('/chart', [MovieController::class, 'chart'])->name('chart');
         route::get('/datatable', [MovieController::class, 'dataTable'])->name('dataTable');
         route::get('/', [MovieController::class, 'index'])->name('index');
         route::get('create', [MovieController::class, 'create'])->name('create');

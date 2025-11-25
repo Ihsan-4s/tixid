@@ -301,5 +301,14 @@ class MovieController extends Controller
             ->make(true);
     }
 
-
+    public function chart()
+    {
+        $movieActive = Movie::where('activated', 1)->count();
+        $movieNonActive = Movie::where('activated', 0)->count();
+        //jumlah data yang akan ditampilkan pada chart
+        $data = [$movieActive, $movieNonActive];
+        return response()->json([
+            'data' => $data,
+        ]);
+    }
 }

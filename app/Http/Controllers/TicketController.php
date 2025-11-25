@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Barryvdh\DomPDF\Facade\Pdf;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use Carbon\Carbon;
 
 use function Symfony\Component\Clock\now;
 
@@ -172,6 +173,28 @@ class TicketController extends Controller
         $pdf = Pdf::loadView('schedule.export-pdf', compact('ticket'));
         $filename = 'Ticket' . $ticketId . '.pdf';
         return $pdf->download($filename);
+    }
+
+    public function dataChart()
+    {
+        // ambil data tiket yang sudah diaktivasi pada bulan ini
+        $month = now()->format('m');
+        //
+        $tickets = Ticket::where('activated', 1)->whereHas('ticket_payment', function($q) use ($month){
+            $q->whereMonth('booked_date', $month);
+        })->get()->groupBy(function($ticket){
+            return Carbon::parse($ticket->ticket_payment->booked_date)->format('Y-m-d');
+        })->toArray();
+        $labels = array_keys($tickets);
+        $data = [];
+        foreach($tickets as $ticketGroup){
+            array_push($data, count($ticketGroup));
+        }
+
+        return response()->json([
+            'labels' => $labels,
+            'data' => $data,
+        ]);
     }
 
     /**
